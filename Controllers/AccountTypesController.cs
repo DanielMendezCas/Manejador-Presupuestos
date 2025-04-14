@@ -17,7 +17,7 @@ namespace ManejadorPresupuestos.Controllers
                                      IUsersService usersService)
         {
            this.accountTypeRepository = accountTypeRepository;
-            this.usersService = usersService;
+           this.usersService = usersService;
            
         }
         // GET: AccountTypesController
@@ -139,6 +139,23 @@ namespace ManejadorPresupuestos.Controllers
         [HttpPost]
         public async Task<IActionResult> Order([FromBody] int[] ids) 
         {
+            var userId = usersService.GetUserId();
+            var accountTypes = await accountTypeRepository.GetAccounts(userId);
+            var idsAccountTypes = accountTypes.Select(x => x.Id);
+
+            var otherIds = ids.Except(idsAccountTypes).ToList();
+
+            //Checking if there are accounts ids that not corresponds to actual user
+            if(otherIds.Count > 0)
+            {
+                return Forbid();
+            }
+
+            var orderedAccountTypes = ids.Select((value, index) => 
+                new AccountType() { Id = value, Order = index + 1}).AsEnumerable();
+
+            await accountTypeRepository.Order(orderedAccountTypes);
+
             return Ok();
         }
     }

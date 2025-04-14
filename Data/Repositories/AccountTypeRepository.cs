@@ -18,10 +18,9 @@ namespace ManejadorPresupuestos.Data.Repositories
         {
             using var connection = new SqlConnection(connectionString);
             var id = await connection.QuerySingleAsync<int>
-                (@"
-                INSERT INTO AccountTypes (AccountName, UserId, [Order])
-                VALUES (@AccountName, @UserId, 0);
-                SELECT SCOPE_IDENTITY();", accountType);
+                ("AccountTypes_Insert", 
+                new {userId = accountType.UserId, accountType.AccountName}, 
+                commandType: System.Data.CommandType.StoredProcedure);
             accountType.Id = id;
         }
 
@@ -45,7 +44,8 @@ namespace ManejadorPresupuestos.Data.Repositories
                 (@"
                 SELECT Id, AccountName, [Order] 
                 FROM AccountTypes 
-                WHERE UserId = @UserId", new { userId });
+                WHERE UserId = @UserId
+                ORDER BY [Order]", new { userId });
 
             return get;
         }
@@ -79,6 +79,13 @@ namespace ManejadorPresupuestos.Data.Repositories
                 (@"
                 DELETE AccountTypes WHERE Id = @Id
                 ", new {id});
+        }
+
+        public async Task Order(IEnumerable<AccountType> accounts)
+        {
+            var query = "UPDATE AccountTypes SET [Order] = @Order WHERE Id = @Id";
+            using var connection = new SqlConnection(connectionString);
+            await connection.ExecuteAsync(query, accounts);
         }
     }
 }

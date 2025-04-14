@@ -10,5 +10,6 @@ namespace ManejadorPresupuestos.Data.Repositories.Interfaces
         Task UpdateAccount(AccountType accountType);
         Task<AccountType> GetAccountById(int id, int userId);
         Task Delete(int id);
+        Task Order(IEnumerable<AccountType> accounts);
     }
 }
