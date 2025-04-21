@@ -43,7 +43,7 @@
     <script>
         const urlOrder = '@Url.Action("order")';
         $(function(){
-            $("#reordenable").sortable({
+            $("#reordenable").sortable({ //Utilizamos sortable de JQuery UI para ordenar los elementos y con ese mismo orden actualizarlos en el backend
                 stop: async function(e,ui){
                     await updateOrders();
                 }
