@@ -17,3 +17,19 @@
 .accordion-accounts .accordion-collapse {
     font-size: 18px;
 }
+
+.accordion-item {
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+}
+
+.accordion-button {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #e2e6ea;
+}

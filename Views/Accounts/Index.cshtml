@@ -15,34 +15,45 @@
 
 <h1>Cuentas</h1>
 
-<a asp-action="Create" class="btn btn-primary mg-3">Crear nueva cuenta</a>
+<a asp-action="Create" class="btn btn-success mb-3">
+    <i class="bi bi-plus-circle me-2"></i> Crear nueva cuenta
+</a>
 
-<div class="container-principal mb-3">
-    <div>
-        <div>
-            <strong>Activos</strong>
-        </div>
-        <div class="activo">
-            @FormatBalance(Model.Where(x => x.Balance > 0).Sum(x => x.Balance))
-        </div>
-    </div>
-    <div>
-        <div>
-            <strong>Pasivos</strong>
-        </div>
-        <div class="pasivo">
-            @FormatBalance(Model.Where(x => x.Balance < 0).Sum(x => x.Balance))
+<div class="row text-center mb-4">
+    <div class="col-md-4">
+        <div class="card border-primary shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Activos</h5>
+                <p class="card-text text-primary fw-bold fs-4">
+                    @FormatBalance(Model.Where(x => x.Balance > 0).Sum(x => x.Balance))
+                </p>
+            </div>
         </div>
     </div>
-    <div>
-        <div>
-            <strong>Total</strong>
+
+    <div class="col-md-4">
+        <div class="card border-danger shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Pasivos</h5>
+                <p class="card-text text-danger fw-bold fs-4">
+                    @FormatBalance(Model.Where(x => x.Balance < 0).Sum(x => x.Balance))
+                </p>
+            </div>
         </div>
-        <div class="total">
-            @FormatBalance(Model.Sum(x => x.Balance))
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-dark shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Total</h5>
+                <p class="card-text fw-bold fs-4">
+                    @FormatBalance(Model.Sum(x => x.Balance))
+                </p>
+            </div>
         </div>
     </div>
 </div>
+
 <div class="accordion accordion-accounts">
     @foreach(var accountT in Model)
     {
@@ -69,15 +80,22 @@
                         @foreach(var account in accountT.Accounts)
                         {
                             var accClass = GetBalanceClass(account.Balance);
-                            <li class="list-group-item">
-                                <span><strong>@account.AccountName</strong></span>
-                                <a class="btn btn-primary">
-                                    <i class="bi-pencil-fill"></i>
-                                </a>
-                                <a class="btn btn-danger">
-                                    <i class="bi bi-trash-fill"></i>
-                                </a>
-                                <span class="@accClass">@FormatBalance(account.Balance)</span>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@account.AccountName</strong>
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Edit" asp-route-id="@account.Id" class="btn btn-outline-primary" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@account.Id" class="btn btn-outline-danger" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                                <span class="badge @(accClass == "activo" ? "bg-success" : "bg-danger")">
+                                    @FormatBalance(account.Balance)
+                                </span>
+
                             </li>
                         }
                     </ul>

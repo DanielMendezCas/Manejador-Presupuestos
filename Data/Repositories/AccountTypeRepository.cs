@@ -80,7 +80,6 @@ namespace ManejadorPresupuestos.Data.Repositories
                 DELETE AccountTypes WHERE Id = @Id
                 ", new {id});
         }
-
         public async Task Order(IEnumerable<AccountType> accounts)
         {
             var query = "UPDATE AccountTypes SET [Order] = @Order WHERE Id = @Id";

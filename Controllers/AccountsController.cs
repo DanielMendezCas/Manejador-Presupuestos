@@ -1,4 +1,5 @@
-﻿using ManejadorPresupuestos.Data.Repositories.Interfaces;
+﻿using AutoMapper;
+using ManejadorPresupuestos.Data.Repositories.Interfaces;
 using ManejadorPresupuestos.Models;
 using ManejadorPresupuestos.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -10,13 +11,15 @@ namespace ManejadorPresupuestos.Controllers
     {
         private readonly IAccountTypeRepository accountTypeRepository;
         private readonly IAccountRepository accountRepository;
+        private readonly IMapper mapper;
         private readonly IUsersService usersService;
 
         public AccountsController(IAccountTypeRepository accountTypeRepository,
-            IUsersService usersService, IAccountRepository accountRepository)
+            IUsersService usersService, IAccountRepository accountRepository, IMapper mapper)
         {
             this.accountTypeRepository = accountTypeRepository;
             this.accountRepository = accountRepository;
+            this.mapper = mapper;
             this.usersService = usersService;
         }
 
@@ -63,6 +66,74 @@ namespace ManejadorPresupuestos.Controllers
             }
 
             await accountRepository.Create(accountCVM);
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var userId = usersService.GetUserId();
+            var account = await accountRepository.GetById(id, userId);
+
+            if (account is null)
+            {
+                return RedirectToAction("NotFound", "Home");
+            }
+
+            // Mapping from account to accountCreateViewModel
+            var model = mapper.Map<AccountCreateViewModel>(account);
+            model.AccountTypes = await GetAccountTypes(userId);
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(AccountCreateViewModel modelEdit)
+        {
+            var userId = usersService.GetUserId();
+            var account = await accountRepository.GetById(modelEdit.Id, userId);
+
+            if (account is null)
+            {
+                return RedirectToAction("NotFound", "Home");
+            }
+
+            var accountType = accountTypeRepository.GetAccountById(modelEdit.AccountTypeId, userId);
+
+            if (accountType is null)
+            {
+                return RedirectToAction("NotFound", "Home");
+            }
+
+            await accountRepository.Update(modelEdit);
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var userId = usersService.GetUserId();
+            var account = await accountRepository.GetById(id, userId);
+
+            if(account is null)
+            {
+                return RedirectToAction("NotFound", "Home");
+            }
+
+            return View(account);
+        }
+
+        [HttpPost]
+        public async Task <IActionResult> DeletePost(int id)
+        {
+            var userId = usersService.GetUserId();
+            var account = await accountRepository.GetById(id, userId);
+
+            if (account is null)
+            {
+                return RedirectToAction("NotFound", "Home");
+            }
+
+            await accountRepository.Delete(id);
             return RedirectToAction("Index");
         }
         // Get account types

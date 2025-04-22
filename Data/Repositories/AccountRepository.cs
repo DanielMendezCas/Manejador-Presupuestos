@@ -29,7 +29,31 @@ namespace ManejadorPresupuestos.Data.Repositories
         {
             using var connection = new SqlConnection(connectionString);
             await connection.ExecuteAsync
-                (@"DELETE FROM Accounts WHERE Id = @Id;", new {id});
+                (@"DELETE Accounts WHERE Id = @Id;", new {id});
+        }
+
+        public async Task Update(AccountCreateViewModel model)
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.ExecuteAsync
+                (@"UPDATE Accounts SET AccountName = @AccountName, 
+                   AccountTypeId = @AccountTypeId, 
+                   Balance = @Balance, 
+                   [Description] = @Description
+                   WHERE Id = @Id;", model
+                );
+        }
+
+        public async Task<Account> GetById(int id, int userId)
+        {
+            using var connection = new SqlConnection(connectionString);
+            return await connection.QueryFirstOrDefaultAsync<Account>
+                (@"SELECT ac.Id, ac.AccountName, ac.Balance, ac.Description, ac.AccountTypeId
+                   FROM Accounts ac
+                   INNER JOIN AccountTypes act
+                   ON act.Id = ac.AccountTypeId
+                   WHERE act.UserId = @UserId AND ac.Id = @Id", new {id, userId}
+                );
         }
 
         public async Task<IEnumerable<Account>> Search(int userId)
